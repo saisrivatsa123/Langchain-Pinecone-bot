@@ -55,35 +55,11 @@ def retreive_answer(query, index):
 
 # Main logic beguns here
 
-# def main(doc_path, query, indexName=None, dims=None, metrics=None):
-    doc = read_doc(doc_path)
-    # document = doc_to_chunks(doc)
-    pc = Pinecone(api_key="fac47941-2ec2-45f3-a2cc-74794fdad0d0")
-    index = any(index['name'] == indexName for index in pc.list_indexes().indexes)
-    if index:
-        embeddings = OllamaEmbeddings()
-        vectorstore_from_docs = PineconeVectorStore.from_documents(
-            doc,
-            index_name=indexName,
-            embedding=embeddings
-            )
-    else:
-        pc.create_index(name=indexName,
-                        dimentsion=dims,
-                        metrics=metrics,
-                        spec=ServerlessSpec(
-                            cloud="aws",
-                            region="us-east-1"
-                            )
-                        )
-
-
-    answer = retreive_answer(query, vectorstore_from_docs)
-    return answer
 def main(doc_path, query, indexName=None, dims=None, metrics=None, access_key=None):
     global vectorstore_from_docs
     doc = read_doc(doc_path)
     # index_name = "langchain1"
+    os.environ['PINECONE_API_KEY'] = access_key
     pc = Pinecone(api_key=access_key)
     index = any(index['name'] == indexName for index in pc.list_indexes().indexes)
     if index:
@@ -96,7 +72,6 @@ def main(doc_path, query, indexName=None, dims=None, metrics=None, access_key=No
         answer = retreive_answer(query, vectorstore_from_docs)
         return answer
     else:
-        pc = Pinecone(api_key="fac47941-2ec2-45f3-a2cc-74794fdad0d0")
         pc.create_index(name=indexName,
                         dimension=4096,
                         metric='cosine',
